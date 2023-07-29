@@ -5,10 +5,11 @@ export type IMember = {
   userName: string
   email: string
   profileImage?: string
-  wishlist: Types.ObjectId[]
-  currentlyReading: Types.ObjectId[]
-  finishedReading: Types.ObjectId[]
-  planToRead: Types.ObjectId[]
+  myBooks?: Types.ObjectId[]
+  bookmark?: Types.ObjectId[]
+  currentlyReading?: Types.ObjectId[]
+  finishedReading?: Types.ObjectId[]
+  planToRead?: Types.ObjectId[]
 }
 
 export type MemberModel = Model<IMember, Record<string, unknown>>

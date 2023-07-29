@@ -2,43 +2,43 @@ import express from 'express'
 import { ENUM_USER_ROLE } from '../../../enums/user'
 import auth from '../../middlewares/auth'
 import validateRequest from '../../middlewares/validateRequest'
-import { AcademicFacultyController } from './books.controller'
-import { AcademicFacultyValidation } from './books.validation'
+import { BookController } from './books.controller'
+import { BookValidation } from './books.validation'
 
 const router = express.Router()
 
 router.post(
-  '/create-academic-faculty',
-  validateRequest(AcademicFacultyValidation.createFacultyZodSchema),
-  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
-  AcademicFacultyController.createFaculty,
+  '/create-book',
+  validateRequest(BookValidation.createBookZodSchema),
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.MEMBER),
+  BookController.createBook,
 )
 router.get(
   '/',
   auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
-  AcademicFacultyController.getFaculty,
+  BookController.getBooks,
 )
 router.get(
   '/:id',
   auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
-  AcademicFacultyController.getSingleFaculty,
+  BookController.getSingleBook,
 )
 
 router.patch(
   '/:id',
-  validateRequest(AcademicFacultyValidation.updateFacultyZodSchema),
+  validateRequest(BookValidation.updateBookZodSchema),
   auth(
     ENUM_USER_ROLE.ADMIN,
     ENUM_USER_ROLE.SUPER_ADMIN,
     ENUM_USER_ROLE.FACULTY,
     ENUM_USER_ROLE.STUDENT,
   ),
-  AcademicFacultyController.updateFaculty,
+  BookController.deleteBook,
 )
 router.delete(
   '/:id',
   auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
-  AcademicFacultyController.deleteFaculty,
+  BookController.updateBook,
 )
 
-export const AcademicFacultyRoutes = router
+export const BooksRoutes = router

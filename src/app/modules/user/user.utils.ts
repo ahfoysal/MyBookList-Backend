@@ -1,3 +1,4 @@
+import { Book } from '../books/books.model'
 import { User } from './user.model'
 
 export const findLastStudentId = async () => {
@@ -15,6 +16,24 @@ export const generatedMemberId = async (): Promise<string> => {
   let incrementedId = (parseInt(createUser) + 1).toString().padStart(5, '0')
   // console.log(incrementedId)
   incrementedId = `${incrementedId}`
+  return incrementedId
+}
+export const findLastBookId = async () => {
+  const lastUser = await Book.findOne({}, { id: 1, _id: 0 })
+    .sort({
+      createdAt: -1,
+    })
+    .lean()
+  return lastUser?.id ? lastUser.id : undefined
+}
+
+export const generateBookId = async (): Promise<string> => {
+  const createUser = (await findLastBookId()) || (0).toString().padStart(5, '0')
+  let incrementedId = (parseInt(createUser) + 1).toString().padStart(5, '0')
+  // console.log(incrementedId)
+  incrementedId = `${incrementedId}`
+  console.log('new', createUser)
+  console.log('last', createUser)
   return incrementedId
 }
 

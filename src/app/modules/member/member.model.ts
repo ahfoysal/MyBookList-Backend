@@ -20,28 +20,34 @@ export const memberSchema = new Schema<IMember, MemberModel>(
     profileImage: {
       type: String,
     },
-    wishlist: [
+    myBooks: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'Books',
+        ref: 'Book',
+      },
+    ],
+    bookmark: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Book',
       },
     ],
     currentlyReading: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'Books',
+        ref: 'Book',
       },
     ],
     finishedReading: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'Books',
+        ref: 'Book',
       },
     ],
     planToRead: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'Books',
+        ref: 'Book',
       },
     ],
   },

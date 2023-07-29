@@ -1,13 +1,23 @@
 import { z } from 'zod'
 
-const createFacultyZodSchema = z.object({
+const createBookZodSchema = z.object({
   body: z.object({
     title: z.string({
-      required_error: 'faculty title is required',
+      required_error: 'book title is required',
     }),
+    description: z.string({
+      required_error: 'book description is required',
+    }),
+    image: z.string({
+      required_error: 'image is required',
+    }),
+    author: z.string().optional(),
+    edition: z.string().optional(),
+    genre: z.array(z.string()),
+    releaseDate: z.string().optional(),
   }),
 })
-const updateFacultyZodSchema = z.object({
+const updateBookZodSchema = z.object({
   body: z.object({
     title: z.string({
       required_error: 'faculty title is required',
@@ -15,7 +25,7 @@ const updateFacultyZodSchema = z.object({
   }),
 })
 
-export const AcademicFacultyValidation = {
-  createFacultyZodSchema,
-  updateFacultyZodSchema,
+export const BookValidation = {
+  createBookZodSchema,
+  updateBookZodSchema,
 }

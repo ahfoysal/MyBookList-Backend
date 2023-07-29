@@ -4,77 +4,76 @@ import catchAsync from '../../../shared/catchAsync'
 import pick from '../../../shared/pick'
 import sendResponse from '../../../shared/sendResponse'
 import { paginationFields } from '../../constants/pagination'
-import { academicFacultyFilterableFields } from './books.constant'
-import { AcademicFacultyService } from './books.service'
+import { bookFilterableFields } from './books.constant'
+import { IBook } from './books.interface'
+import { BookService } from './books.service'
+import { JwtPayload } from 'jsonwebtoken'
 
-const createFaculty = catchAsync(async (req: Request, res: Response) => {
+const createBook = catchAsync(async (req: Request, res: Response) => {
   const { ...data } = req.body
-  const result = await AcademicFacultyService.createFaculty(data)
+  const result = await BookService.createBook(data, req.user as JwtPayload)
 
-  sendResponse<IAcademicFaculty>(res, {
+  sendResponse<IBook>(res, {
     statusCode: httpstatus.OK,
     success: true,
-    message: 'Academic faculty created successfully',
+    message: 'Book created successfully',
     data: result,
   })
 })
-const getFaculty = catchAsync(async (req: Request, res: Response) => {
+const getBooks = catchAsync(async (req: Request, res: Response) => {
   const paginationOptions = pick(req.query, paginationFields)
-  const filters = pick(req.query, academicFacultyFilterableFields)
-  const result = await AcademicFacultyService.getFaculty(
-    filters,
-    paginationOptions,
-  )
+  const filters = pick(req.query, bookFilterableFields)
+  const result = await BookService.getBooks(filters, paginationOptions)
   console.log(req.user)
 
-  sendResponse<IAcademicFaculty[]>(res, {
+  sendResponse<IBook[]>(res, {
     statusCode: httpstatus.OK,
     success: true,
-    message: 'Academic faculty fetched successfully',
+    message: 'Book fetched successfully',
     meta: result.meta,
     data: result.data,
   })
 })
-const getSingleFaculty = catchAsync(async (req: Request, res: Response) => {
+const getSingleBook = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params
-  const result = await AcademicFacultyService.getSingleFaculty(id)
+  const result = await BookService.getSingleBook(id)
 
-  sendResponse<IAcademicFaculty>(res, {
+  sendResponse<IBook>(res, {
     statusCode: httpstatus.OK,
     success: true,
-    message: 'Academic faculty fetched successfully',
+    message: 'Book fetched successfully',
     data: result,
   })
 })
-const updateFaculty = catchAsync(async (req: Request, res: Response) => {
+const updateBook = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params
   const { ...data } = req.body
-  const result = await AcademicFacultyService.updateFaculty(id, data)
+  const result = await BookService.updateBook(id, data)
 
-  sendResponse<IAcademicFaculty>(res, {
+  sendResponse<IBook>(res, {
     statusCode: httpstatus.OK,
     success: true,
-    message: 'Academic faculty updated  successfully',
+    message: 'Book updated  successfully',
     data: result,
   })
 })
-const deleteFaculty = catchAsync(async (req: Request, res: Response) => {
+const deleteBook = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params
 
-  await AcademicFacultyService.deleteFaculty(id)
+  await BookService.deleteBook(id)
 
-  sendResponse<IAcademicFaculty>(res, {
+  sendResponse<IBook>(res, {
     statusCode: httpstatus.OK,
     success: true,
-    message: 'Academic faculty deleted  successfully',
+    message: 'Book deleted  successfully',
     data: null,
   })
 })
 
-export const AcademicFacultyController = {
-  createFaculty,
-  getFaculty,
-  getSingleFaculty,
-  updateFaculty,
-  deleteFaculty,
+export const BookController = {
+  createBook,
+  getBooks,
+  getSingleBook,
+  updateBook,
+  deleteBook,
 }

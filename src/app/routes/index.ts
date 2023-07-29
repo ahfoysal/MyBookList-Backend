@@ -1,6 +1,6 @@
 import express from 'express'
 import { AuthRoutes } from '../modules/auth/auth.route'
-import { AcademicSemesterRoutes } from '../modules/books/academicSemester.route'
+import { BooksRoutes } from '../modules/books/books.route'
 import { StudentRoutes } from '../modules/member/member.route'
 import { UserRoutes } from '../modules/user/user.route'
 
@@ -21,7 +21,7 @@ const routes = [
   },
   {
     path: '/books',
-    route: AcademicSemesterRoutes,
+    route: BooksRoutes,
   },
 ]
 

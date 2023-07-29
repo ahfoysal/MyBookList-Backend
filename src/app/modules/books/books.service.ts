@@ -1,28 +1,61 @@
-import { SortOrder } from 'mongoose'
+import { JwtPayload } from 'jsonwebtoken'
+import mongoose, { SortOrder } from 'mongoose'
 import { paginationHelper } from '../../../helpers/paginationHelper'
 import { IGenericResponse } from '../../../interfaces/common'
 import { IPaginationOptions } from '../../../interfaces/pagination'
-import { academicFacultySearchableFields } from './books.constant'
-import { IAcademicFaculty, IAcademicFacultyFilters } from './books.interface'
-import { AcademicFaculty } from './books.model'
+import { Member } from '../member/member.model'
+import { User } from '../user/user.model'
+import { generateBookId } from '../user/user.utils'
+import { bookSearchableFields } from './books.constant'
+import { IBook, IBooksFilters } from './books.interface'
+import { Book } from './books.model'
 
-const createFaculty = async (
-  data: IAcademicFaculty,
-): Promise<IAcademicFaculty | null> => {
-  const result = await AcademicFaculty.create(data)
+const createBook = async (
+  data: IBook,
+  user: JwtPayload,
+): Promise<IBook | null> => {
+  const session = await mongoose.startSession()
+  session.startTransaction()
 
-  return result
+  try {
+    const bookId = await generateBookId()
+
+    const isUserExist = await User.findOne({ id: user.id }).session(session)
+
+    data.authorId = isUserExist?._id || undefined
+    data.id = bookId
+
+    const result = await Book.create([data], { session })
+
+    // Update member's myBooks array
+    console.log(isUserExist.member)
+    if (isUserExist && result) {
+      await Member.findByIdAndUpdate(
+        isUserExist?.member,
+        { $push: { myBooks: result[0]._id } }, // Assuming 'myBooKs' is the correct field name in the User schema
+        { new: true, session },
+      )
+    }
+
+    await session.commitTransaction()
+    session.endSession()
+
+    return result[0]
+  } catch (error) {
+    await session.abortTransaction()
+    session.endSession()
+    throw error
+  }
 }
-
-const getFaculty = async (
-  filters: IAcademicFacultyFilters,
+const getBooks = async (
+  filters: IBooksFilters,
   pagination: IPaginationOptions,
-): Promise<IGenericResponse<IAcademicFaculty[]>> => {
+): Promise<IGenericResponse<IBook[]>> => {
   const { searchTerm, ...filterData } = filters
   const andCondition = []
   if (searchTerm) {
     andCondition.push({
-      $or: academicFacultySearchableFields.map(field => ({
+      $or: bookSearchableFields.map(field => ({
         [field]: {
           $regex: searchTerm,
           $options: 'i',
@@ -46,11 +79,11 @@ const getFaculty = async (
     sortConditions[sortBy] = sortOrder
   }
   const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {}
-  const result = await AcademicFaculty.find(whereCondition)
+  const result = await Book.find(whereCondition)
     .sort(sortConditions)
     .skip(skip)
     .limit(limit)
-  const total = await AcademicFaculty.count()
+  const total = await Book.count()
   return {
     meta: {
       page,
@@ -60,28 +93,26 @@ const getFaculty = async (
     data: result,
   }
 }
-const getSingleFaculty = async (
-  id: string,
-): Promise<IAcademicFaculty | null> => {
-  const result = await AcademicFaculty.findById(id)
+const getSingleBook = async (id: string): Promise<IBook | null> => {
+  const result = await Book.findById(id)
   return result
 }
-const updateFaculty = async (
+const updateBook = async (
   id: string,
-  payload: Partial<IAcademicFaculty>,
-): Promise<IAcademicFaculty | null> => {
-  const result = await AcademicFaculty.findByIdAndUpdate({ _id: id }, payload, {
+  payload: Partial<IBook>,
+): Promise<IBook | null> => {
+  const result = await Book.findByIdAndUpdate({ _id: id }, payload, {
     new: true,
   })
   return result
 }
-const deleteFaculty = async (id: string): Promise<void> => {
-  await AcademicFaculty.deleteOne({ _id: id })
+const deleteBook = async (id: string): Promise<void> => {
+  await Book.deleteOne({ _id: id })
 }
-export const AcademicFacultyService = {
-  createFaculty,
-  getFaculty,
-  getSingleFaculty,
-  updateFaculty,
-  deleteFaculty,
+export const BookService = {
+  createBook,
+  getBooks,
+  getSingleBook,
+  updateBook,
+  deleteBook,
 }
