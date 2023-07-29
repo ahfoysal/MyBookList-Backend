@@ -4,16 +4,16 @@ import catchAsync from '../../../shared/catchAsync'
 import pick from '../../../shared/pick'
 import sendResponse from '../../../shared/sendResponse'
 import { paginationFields } from '../../constants/pagination'
-import { studentFilterableFields } from './student.constant'
-import { IStudent } from './student.interface'
-import { StudentService } from './student.service'
+import { studentFilterableFields } from './member.constant'
+import { StudentService } from './member.service'
+import { IMember } from './member.interface'
 
 const getStudents = catchAsync(async (req: Request, res: Response) => {
   const paginationOptions = pick(req.query, paginationFields)
   const filters = pick(req.query, studentFilterableFields)
   const result = await StudentService.getStudents(filters, paginationOptions)
 
-  sendResponse<IStudent[]>(res, {
+  sendResponse<IMember[]>(res, {
     statusCode: httpstatus.OK,
     success: true,
     message: 'Academic faculty fetched successfully',
@@ -25,7 +25,7 @@ const getSingleStudents = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params
   const result = await StudentService.getSingleStudent(id)
 
-  sendResponse<IStudent>(res, {
+  sendResponse<IMember>(res, {
     statusCode: httpstatus.OK,
     success: true,
     message: 'Academic faculty fetched successfully',
@@ -37,7 +37,7 @@ const updateStudents = catchAsync(async (req: Request, res: Response) => {
   const { ...data } = req.body
   const result = await StudentService.updateStudents(id, data)
 
-  sendResponse<IStudent>(res, {
+  sendResponse<IMember>(res, {
     statusCode: httpstatus.OK,
     success: true,
     message: 'Academic faculty updated  successfully',
@@ -49,7 +49,7 @@ const deleteStudents = catchAsync(async (req: Request, res: Response) => {
 
   await StudentService.deleteStudent(id)
 
-  sendResponse<IStudent>(res, {
+  sendResponse<IMember>(res, {
     statusCode: httpstatus.OK,
     success: true,
     message: 'Academic faculty deleted  successfully',

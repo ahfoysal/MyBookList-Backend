@@ -5,14 +5,14 @@ import { paginationHelper } from '../../../helpers/paginationHelper'
 import { IGenericResponse } from '../../../interfaces/common'
 import { IPaginationOptions } from '../../../interfaces/pagination'
 import { User } from '../user/user.model'
-import { studentSearchableFields } from './student.constant'
-import { IStudent, IStudentFilters } from './student.interface'
-import { Student } from './student.model'
+import { studentSearchableFields } from './member.constant'
+import { IMember, IMemberFilters } from './member.interface'
+import { Member } from './member.model'
 
 const getStudents = async (
-  filters: IStudentFilters,
+  filters: IMemberFilters,
   pagination: IPaginationOptions,
-): Promise<IGenericResponse<IStudent[]>> => {
+): Promise<IGenericResponse<IMember[]>> => {
   const { searchTerm, ...filterData } = filters
   const andCondition = []
   if (searchTerm) {
@@ -41,11 +41,11 @@ const getStudents = async (
     sortConditions[sortBy] = sortOrder
   }
   const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {}
-  const result = await Student.find(whereCondition)
+  const result = await Member.find(whereCondition)
     .sort(sortConditions)
     .skip(skip)
     .limit(limit)
-  const total = await Student.count()
+  const total = await Member.count()
   return {
     meta: {
       page,
@@ -55,8 +55,8 @@ const getStudents = async (
     data: result,
   }
 }
-const getSingleStudent = async (id: string): Promise<IStudent | null> => {
-  const result = await Student.findOne({ id })
+const getSingleStudent = async (id: string): Promise<IMember | null> => {
+  const result = await Member.findOne({ id })
     .populate('academicSemester')
     .populate('academicDepartment')
     .populate('academicFaculty')
@@ -64,55 +64,41 @@ const getSingleStudent = async (id: string): Promise<IStudent | null> => {
 }
 const updateStudents = async (
   id: string,
-  payload: Partial<IStudent>,
-): Promise<IStudent | null> => {
-  const isExist = await Student.findOne({ id })
+  payload: Partial<IMember>,
+): Promise<IMember | null> => {
+  const isExist = await Member.findOne({ id })
     .populate('academicSemester')
     .populate('academicDepartment')
     .populate('academicFaculty')
   if (!isExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Student not found')
   }
-  const { name, guardian, localGuardian, ...studentData } = payload
+  const { name,  ...studentData } = payload
 
-  const updatedStudentData: Partial<IStudent> = { ...studentData }
+  const updatedStudentData: Partial<IMember> = { ...studentData }
   if (name && Object.keys(name).length > 0) {
     Object.keys(name).forEach(key => {
-      const nameKey = `name.${key}` as keyof Partial<IStudent>
+      const nameKey = `name.${key}` as keyof Partial<IMember>
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ;(updatedStudentData as any)[nameKey] = name[key as keyof typeof name]
     })
   }
-  if (guardian && Object.keys(guardian).length > 0) {
-    Object.keys(guardian).forEach(key => {
-      const nameKey = `guardian.${key}` as keyof Partial<IStudent>
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ;(updatedStudentData as any)[nameKey] = guardian[key as keyof typeof name]
-    })
-  }
-  if (localGuardian && Object.keys(localGuardian).length > 0) {
-    Object.keys(localGuardian).forEach(key => {
-      const nameKey = `localGuardian.${key}` as keyof Partial<IStudent>
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ;(updatedStudentData as any)[nameKey] =
-        localGuardian[key as keyof typeof name]
-    })
-  }
+ 
 
-  const result = await Student.findOneAndUpdate({ id }, updatedStudentData, {
+  const result = await Member.findOneAndUpdate({ id }, updatedStudentData, {
     new: true,
   })
   return result
 }
-const deleteStudent = async (id: string): Promise<IStudent | null> => {
-  const isExist = await Student.findOne({ id })
+const deleteStudent = async (id: string): Promise<IMember | null> => {
+  const isExist = await Member.findOne({ id })
   if (!isExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Student not found')
   }
   const session = await mongoose.startSession()
   try {
     session.startTransaction()
-    const student = await Student.findOneAndDelete({ id }, { session })
+    const student = await Member.findOneAndDelete({ id }, { session })
     if (!student) {
       throw new ApiError(httpStatus.NOT_FOUND, 'failed to delete student')
     }

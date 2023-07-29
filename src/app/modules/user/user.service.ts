@@ -1,46 +1,34 @@
 import httpStatus from 'http-status'
 import mongoose from 'mongoose'
-import config from '../../../config'
 import ApiError from '../../../errors/ApiError'
-import { IAcademicSemester } from '../academicSemester/academicSemester.interface'
-import { AcademicSemester } from '../academicSemester/academicSemester.model'
-import { IStudent } from '../student/student.interface'
-import { Student } from '../student/student.model'
+import { Member } from '../member/member.model'
 import { IUser } from './user.interface'
 import { User } from './user.model'
-import { generatedAdminId, generatedStudentId } from './user.utils'
-import { IAdmin } from '../admin/admin.interface'
+import { generatedMemberId } from './user.utils'
 
-const createStudent = async (
-  student: IStudent,
+const createMember = async (
+  // member: IMember,
   user: IUser,
 ): Promise<IUser | null> => {
-  if (!user.password) {
-    user.password = config.default_student_password as string
-  }
   // Hashed password
 
-  user.role = 'student'
-
-  const academicsemester = await AcademicSemester.findById(
-    student.academicSemester,
-  ).lean()
+  user.role = 'member'
 
   let newUserAllData = null
   const session = await mongoose.startSession()
   try {
     session.startTransaction()
-    const id = await generatedStudentId(academicsemester as IAcademicSemester)
+    const id = await generatedMemberId()
     user.id = id
-    student.id = id
+    // member.id = id
 
-    const newStudent = await Student.create([student], { session })
+    const newStudent = await Member.create([user], { session })
 
     if (!newStudent.length) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create student')
     }
 
-    user.student = newStudent[0]._id
+    user.member = newStudent[0]._id
 
     const newUser = await User.create([user], { session })
 
@@ -59,84 +47,74 @@ const createStudent = async (
 
   if (newUserAllData) {
     newUserAllData = await User.findOne({ id: newUserAllData.id }).populate({
-      path: 'student',
-      populate: [
-        {
-          path: 'academicSemester',
-        },
-        {
-          path: 'academicDepartment',
-        },
-        {
-          path: 'academicFaculty',
-        },
-      ],
+      path: 'member',
+      populate: [],
     })
   }
 
   return newUserAllData
 }
 
-const createAdmin = async (
-  admin: IAdmin,
-  user: IUser,
-): Promise<IUser | null> => {
-  // If password is not given,set default password
-  if (!user.password) {
-    user.password = config.default_student_password as string
-  }
-  // set role
-  user.role = 'admin'
+// const createAdmin = async (
+//   admin: IAdmin,
+//   user: IUser,
+// ): Promise<IUser | null> => {
+//   // If password is not given,set default password
+//   if (!user.password) {
+//     user.password = config.default_student_password as string
+//   }
+//   // set role
+//   user.role = 'admin'
 
-  let newUserAllData = null
-  const session = await mongoose.startSession()
-  try {
-    session.startTransaction()
-    // generate student
-    const id = await generatedAdminId()
-    // set custom id into both  student & user
-    user.id = id
-    admin.id = id
+//   let newUserAllData = null
+//   const session = await mongoose.startSession()
+//   try {
+//     session.startTransaction()
+//     // generate student
+//     const id = await generatedAdminId()
+//     // set custom id into both  student & user
+//     user.id = id
+//     admin.id = id
 
-    // Create student using
-    const newAdmin = await Student.create([admin], { session })
+//     // Create student using
+//     const newAdmin = await Student.create([admin], { session })
 
-    if (!newAdmin.length) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create admin')
-    }
+//     if (!newAdmin.length) {
+//       throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create admin')
+//     }
 
-    // set student _id (reference) into user.student
-    user.admin = newAdmin[0]._id
+//     // set student _id (reference) into user.student
+//     user.admin = newAdmin[0]._id
 
-    const newUser = await User.create([user], { session })
+//     const newUser = await User.create([user], { session })
 
-    if (!newUser.length) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create admin')
-    }
-    newUserAllData = newUser[0]
+//     if (!newUser.length) {
+//       throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create admin')
+//     }
+//     newUserAllData = newUser[0]
 
-    await session.commitTransaction()
-    await session.endSession()
-  } catch (error) {
-    await session.abortTransaction()
-    await session.endSession()
-    throw error
-  }
+//     await session.commitTransaction()
+//     await session.endSession()
+//   } catch (error) {
+//     await session.abortTransaction()
+//     await session.endSession()
+//     throw error
+//   }
 
-  if (newUserAllData) {
-    newUserAllData = await User.findOne({ id: newUserAllData.id }).populate({
-      path: 'admin',
-      populate: [
-        {
-          path: 'managementDepartment',
-        },
-      ],
-    })
-  }
+//   if (newUserAllData) {
+//     newUserAllData = await User.findOne({ id: newUserAllData.id }).populate({
+//       path: 'admin',
+//       populate: [
+//         {
+//           path: 'managementDepartment',
+//         },
+//       ],
+//     })
+//   }
 
-  return newUserAllData
-}
+//   return newUserAllData
+// }
 export const UserService = {
-  createStudent,
-  createAdmin,
+  createMember,
+  // createAdmin,
 }

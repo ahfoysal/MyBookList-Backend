@@ -1,7 +1,7 @@
 import express from 'express'
-import { AcademicSemesterRoutes } from '../modules/academicSemester/academicSemester.route'
 import { AuthRoutes } from '../modules/auth/auth.route'
-import { StudentRoutes } from '../modules/student/student.route'
+import { AcademicSemesterRoutes } from '../modules/books/academicSemester.route'
+import { StudentRoutes } from '../modules/member/member.route'
 import { UserRoutes } from '../modules/user/user.route'
 
 const router = express.Router()
