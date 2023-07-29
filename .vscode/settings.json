@@ -1,0 +1,17 @@
+{
+  "cSpell.words": [
+    "academicsemester",
+    "dget",
+    "Facultiesisable",
+    "httpstatus",
+    "middlewares",
+    "Parens",
+    "Pewds",
+    "tsbuildinfo",
+    "virtuals"
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true,
+    "source.organizeImports": true
+  }
+}
