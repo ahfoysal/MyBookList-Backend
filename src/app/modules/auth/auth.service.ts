@@ -1,5 +1,5 @@
 import httpStatus from 'http-status'
-import jwt, { Secret } from 'jsonwebtoken'
+import jwt, { JwtPayload, Secret } from 'jsonwebtoken'
 import config from '../../../config'
 import ApiError from '../../../errors/ApiError'
 import { jwtHelpers } from '../../../helpers/jwtHelper'
@@ -12,7 +12,7 @@ const login = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   // check user exists
 
   const isUserExist = await User.findOne({ email }, { '+password': 1 })
-  console.log(isUserExist, email)
+  console.log(isUserExist)
   if (!isUserExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User does not exist')
   }
@@ -23,20 +23,22 @@ const login = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   ) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Password is incorrect')
   }
-  console.log(isUserExist)
+  // console.log(isUserExist)
   // generate access  token
-  const { id: userId, role, needsPasswordChange } = isUserExist
+  const { id: userId, role } = isUserExist
   const accessToken = jwtHelpers.generateToken(
-    { id: userId, role },
+    { id: userId, role, email },
     config.jwt.secret as Secret,
     config.jwt.expires_in as string,
   )
   const refreshToken = jwtHelpers.generateToken(
-    { id: userId, role },
+    { id: userId, role, email },
     config.jwt.refresh as Secret,
     config.jwt.refresh_expire_in as string,
   )
-  return { accessToken, refreshToken, needsPasswordChange }
+  // const { password: userPass, ...userData } = isUserExist
+  // console.log(userPass)
+  return { accessToken, refreshToken, user: isUserExist }
 }
 
 const refreshToken = async (token: string) => {
@@ -61,7 +63,14 @@ const refreshToken = async (token: string) => {
   )
   return accessToken
 }
+
+const me = async (user: JwtPayload) => {
+  console.log(user)
+  return { user }
+}
+
 export const AuthService = {
   login,
   refreshToken,
+  me,
 }

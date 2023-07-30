@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { RequestHandler } from 'express-serve-static-core'
 import httpStatus from 'http-status'
+import { JwtPayload } from 'jsonwebtoken'
 import config from '../../../config'
 import catchAsync from '../../../shared/catchAsync'
 import sendResponse from '../../../shared/sendResponse'
@@ -44,8 +45,19 @@ const refreshToken: RequestHandler = catchAsync(
     })
   },
 )
+const me: RequestHandler = catchAsync(async (req: Request, res: Response) => {
+  const token = req.user
+  const result = await AuthService.me(token as JwtPayload)
 
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User retrieved successfully!',
+    data: result,
+  })
+})
 export const AuthController = {
   login,
   refreshToken,
+  me,
 }

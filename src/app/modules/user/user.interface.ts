@@ -1,25 +1,34 @@
 /* eslint-disable no-unused-vars */
 import { Model, Types } from 'mongoose'
 import { IAdmin } from '../admin/admin.interface'
-import { IMember } from '../member/member.interface'
 
 export type IUser = {
+  // id: string
+  // role: string
+  // password: string
+  // email: string
+  // needsPasswordChange: boolean
+  // member?: Types.ObjectId | IMember
+  // admin?: Types.ObjectId | IAdmin
+  passwordChangedAt?: Date
   id: string
+  userName: string
+  email: string
+  profileImage?: string
   role: string
   password: string
-  email: string
-  needsPasswordChange: boolean
-  member?: Types.ObjectId | IMember
+  myBooks?: Types.ObjectId[]
   admin?: Types.ObjectId | IAdmin
-  passwordChangedAt?: Date
+  bookmark?: Types.ObjectId[]
+  currentlyReading?: Types.ObjectId[]
+  finishedReading?: Types.ObjectId[]
+  planToRead?: Types.ObjectId[]
 }
 
 export type UserModel = {
   isUserExist(
     email: string,
-  ): Promise<
-    Pick<IUser, 'id' | 'password' | 'role' | 'email' | 'needsPasswordChange'>
-  >
+  ): Promise<Pick<IUser, 'id' | 'password' | 'role' | 'email'>>
   isPasswordMatched(
     givenPassword: string,
     savedPassword: string,

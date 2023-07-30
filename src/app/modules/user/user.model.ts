@@ -11,6 +11,50 @@ const UserSchema = new Schema<IUser, UserModel>(
       required: true,
       unique: true,
     },
+
+    userName: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+
+    email: {
+      type: String,
+      required: true,
+    },
+    profileImage: {
+      type: String,
+    },
+    myBooks: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Book',
+      },
+    ],
+    bookmark: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Book',
+      },
+    ],
+    currentlyReading: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Book',
+      },
+    ],
+    finishedReading: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Book',
+      },
+    ],
+    planToRead: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Book',
+      },
+    ],
     role: {
       type: String,
       required: true,
@@ -21,17 +65,8 @@ const UserSchema = new Schema<IUser, UserModel>(
       select: 0,
     },
 
-    email: {
-      type: String,
-      required: true,
-    },
-
     passwordChangedAt: {
       type: Date,
-    },
-    member: {
-      type: Schema.Types.ObjectId,
-      ref: 'Member',
     },
     admin: {
       type: Schema.Types.ObjectId,
@@ -70,9 +105,7 @@ UserSchema.pre('save', async function (next) {
     user.password,
     Number(config.bcrypt_salt_rounds),
   )
-  if (!user.needsPasswordChange) {
-    user.passwordChangedAt = new Date()
-  }
+
   next()
 })
 

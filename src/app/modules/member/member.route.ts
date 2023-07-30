@@ -15,4 +15,4 @@ router.patch(
 )
 router.delete('/:id', StudentController.deleteStudents)
 
-export const StudentRoutes = router
+export const MemberRoutes = router

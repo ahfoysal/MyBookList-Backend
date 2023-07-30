@@ -3,7 +3,6 @@ import mongoose, { SortOrder } from 'mongoose'
 import { paginationHelper } from '../../../helpers/paginationHelper'
 import { IGenericResponse } from '../../../interfaces/common'
 import { IPaginationOptions } from '../../../interfaces/pagination'
-import { Member } from '../member/member.model'
 import { User } from '../user/user.model'
 import { generateBookId } from '../user/user.utils'
 import { bookSearchableFields } from './books.constant'
@@ -28,10 +27,10 @@ const createBook = async (
     const result = await Book.create([data], { session })
 
     // Update member's myBooks array
-    console.log(isUserExist.member)
+
     if (isUserExist && result) {
-      await Member.findByIdAndUpdate(
-        isUserExist?.member,
+      await User.findByIdAndUpdate(
+        isUserExist?._id,
         { $push: { myBooks: result[0]._id } }, // Assuming 'myBooKs' is the correct field name in the User schema
         { new: true, session },
       )

@@ -1,13 +1,9 @@
-import httpStatus from 'http-status'
 import { Secret } from 'jsonwebtoken'
-import mongoose from 'mongoose'
-import ApiError from '../../../errors/ApiError'
+import config from '../../../config'
 import { jwtHelpers } from '../../../helpers/jwtHelper'
-import { Member } from '../member/member.model'
 import { IUser } from './user.interface'
 import { User } from './user.model'
 import { generatedMemberId } from './user.utils'
-import config from '../../../config'
 
 const createMember = async (
   // member: IMember,
@@ -16,57 +12,24 @@ const createMember = async (
   // Hashed password
 
   user.role = 'member'
+  const id = await generatedMemberId()
+  user.id = id
 
-  let newUserAllData = null
-  const session = await mongoose.startSession()
-  try {
-    session.startTransaction()
-    const id = await generatedMemberId()
-    user.id = id
-    // user.email = id
-    // member.id = id
+  const newUser = await User.create(user)
 
-    const newStudent = await Member.create([user], { session })
-
-    if (!newStudent.length) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create student')
-    }
-
-    user.member = newStudent[0]._id
-
-    const newUser = await User.create([user], { session })
-
-    if (!newUser.length) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Failed to create user')
-    }
-    newUserAllData = newUser[0]
-
-    await session.commitTransaction()
-    await session.endSession()
-  } catch (error) {
-    await session.abortTransaction()
-    await session.endSession()
-    throw error
-  }
-
-  if (newUserAllData) {
-    newUserAllData = await User.findOne({ id: newUserAllData.id }).populate({
-      path: 'member',
-      populate: [],
-    })
-  }
   const accessToken = jwtHelpers.generateToken(
-    { id: newUserAllData?.id, role: newUserAllData?.role },
+    { id: newUser?.id, role: newUser?.role },
     config.jwt.secret as Secret,
     config.jwt.expires_in as string,
   )
   const refreshToken = jwtHelpers.generateToken(
-    { id: newUserAllData?.id, role: newUserAllData?.role },
+    { id: newUser?.id, role: newUser?.role },
     config.jwt.refresh as Secret,
     config.jwt.refresh_expire_in as string,
   )
-
-  return { newUserAllData, refreshToken, accessToken }
+  // const { password: userPass, ...userData } = newUser
+  // console.log(userPass, userData)
+  return { user: newUser, refreshToken, accessToken }
 }
 
 // const createAdmin = async (
