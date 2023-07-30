@@ -27,9 +27,9 @@ const createMember = async (
     config.jwt.refresh as Secret,
     config.jwt.refresh_expire_in as string,
   )
-  // const { password: userPass, ...userData } = newUser
-  // console.log(userPass, userData)
-  return { user: newUser, refreshToken, accessToken }
+  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+  const { password, ...userWithoutPassword } = newUser.toObject()
+  return { user: userWithoutPassword, refreshToken, accessToken }
 }
 
 // const createAdmin = async (

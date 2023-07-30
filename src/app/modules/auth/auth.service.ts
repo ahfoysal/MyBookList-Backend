@@ -6,39 +6,36 @@ import { jwtHelpers } from '../../../helpers/jwtHelper'
 import { User } from '../user/user.model'
 import { ILoginUser, ILoginUserResponse } from './auth.interface'
 
-const login = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
-  const { email, password } = payload
-
-  // check user exists
-
+const login = async ({
+  email,
+  password,
+}: ILoginUser): Promise<ILoginUserResponse> => {
   const isUserExist = await User.findOne({ email }, { '+password': 1 })
-  console.log(isUserExist)
   if (!isUserExist) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User does not exist')
+    throw new ApiError(httpStatus.NOT_FOUND, 'No user found with this email')
   }
-
   if (
     isUserExist.password &&
     !(await User.isPasswordMatched(password, isUserExist.password))
   ) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Password is incorrect')
   }
-  // console.log(isUserExist)
-  // generate access  token
-  const { id: userId, role } = isUserExist
+
+  const { id, role } = isUserExist
   const accessToken = jwtHelpers.generateToken(
-    { id: userId, role, email },
+    { id, role, email },
     config.jwt.secret as Secret,
     config.jwt.expires_in as string,
   )
   const refreshToken = jwtHelpers.generateToken(
-    { id: userId, role, email },
+    { id, role, email },
     config.jwt.refresh as Secret,
     config.jwt.refresh_expire_in as string,
   )
-  // const { password: userPass, ...userData } = isUserExist
-  // console.log(userPass)
-  return { accessToken, refreshToken, user: isUserExist }
+  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+  const { password: userPass, ...userWithoutPassword } = isUserExist.toObject()
+
+  return { accessToken, refreshToken, user: userWithoutPassword }
 }
 
 const refreshToken = async (token: string) => {
