@@ -2,9 +2,17 @@ import { z } from 'zod'
 
 const createMemberZodSchema = z.object({
   body: z.object({
-    password: z.string(),
-    userName: z.string(),
-    email: z.string().email(),
+    userName: z.string({
+      required_error: 'userName is required',
+    }),
+    email: z
+      .string({
+        required_error: 'Email is required',
+      })
+      .email(),
+    password: z.string({
+      required_error: 'password is required',
+    }),
   }),
 })
 

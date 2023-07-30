@@ -7,11 +7,12 @@ import { User } from '../user/user.model'
 import { ILoginUser, ILoginUserResponse } from './auth.interface'
 
 const login = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
-  const { id, password } = payload
+  const { email, password } = payload
 
   // check user exists
 
-  const isUserExist = await User.isUserExist(id)
+  const isUserExist = await User.findOne({ email }, { '+password': 1 })
+  console.log(isUserExist, email)
   if (!isUserExist) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User does not exist')
   }
@@ -22,7 +23,7 @@ const login = async (payload: ILoginUser): Promise<ILoginUserResponse> => {
   ) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Password is incorrect')
   }
-
+  console.log(isUserExist)
   // generate access  token
   const { id: userId, role, needsPasswordChange } = isUserExist
   const accessToken = jwtHelpers.generateToken(

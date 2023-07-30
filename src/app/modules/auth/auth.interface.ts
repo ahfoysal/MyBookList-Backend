@@ -1,5 +1,6 @@
 export type ILoginUser = {
-  id: string
+  email?: string
+  id?: string | undefined
   password: string
 }
 export type ILoginUserResponse = {

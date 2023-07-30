@@ -20,6 +20,7 @@ const createMember = async (
     session.startTransaction()
     const id = await generatedMemberId()
     user.id = id
+    // user.email = id
     // member.id = id
 
     const newStudent = await Member.create([user], { session })

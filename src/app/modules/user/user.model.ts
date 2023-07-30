@@ -20,6 +20,12 @@ const UserSchema = new Schema<IUser, UserModel>(
       required: true,
       select: 0,
     },
+
+    email: {
+      type: String,
+      required: true,
+    },
+
     passwordChangedAt: {
       type: Date,
     },
