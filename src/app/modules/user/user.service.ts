@@ -1,15 +1,18 @@
 import httpStatus from 'http-status'
+import { Secret } from 'jsonwebtoken'
 import mongoose from 'mongoose'
 import ApiError from '../../../errors/ApiError'
+import { jwtHelpers } from '../../../helpers/jwtHelper'
 import { Member } from '../member/member.model'
 import { IUser } from './user.interface'
 import { User } from './user.model'
 import { generatedMemberId } from './user.utils'
+import config from '../../../config'
 
 const createMember = async (
   // member: IMember,
   user: IUser,
-): Promise<IUser | null> => {
+) => {
   // Hashed password
 
   user.role = 'member'
@@ -52,8 +55,18 @@ const createMember = async (
       populate: [],
     })
   }
+  const accessToken = jwtHelpers.generateToken(
+    { id: newUserAllData?.id, role: newUserAllData?.role },
+    config.jwt.secret as Secret,
+    config.jwt.expires_in as string,
+  )
+  const refreshToken = jwtHelpers.generateToken(
+    { id: newUserAllData?.id, role: newUserAllData?.role },
+    config.jwt.refresh as Secret,
+    config.jwt.refresh_expire_in as string,
+  )
 
-  return newUserAllData
+  return { newUserAllData, refreshToken, accessToken }
 }
 
 // const createAdmin = async (

@@ -1,21 +1,27 @@
 import { Request, Response } from 'express'
 import { RequestHandler } from 'express-serve-static-core'
 import httpStatus from 'http-status'
+import config from '../../../config'
 import catchAsync from '../../../shared/catchAsync'
 import sendResponse from '../../../shared/sendResponse'
-import { IUser } from './user.interface'
 import { UserService } from './user.service'
 
 const createMember: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
     const { ...userData } = req.body
     const result = await UserService.createMember(userData)
-
-    sendResponse<IUser>(res, {
+    console.log(result)
+    const { refreshToken, ...others } = result
+    const cookieOptions = {
+      secure: (config.env === 'production') === true,
+      httpOnly: true,
+    }
+    res.cookie('refreshToken', refreshToken, cookieOptions)
+    sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'User created successfully!',
-      data: result,
+      message: 'Signup successfully!',
+      data: others,
     })
   },
 )

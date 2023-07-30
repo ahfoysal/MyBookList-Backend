@@ -7,7 +7,7 @@ export const findLastStudentId = async () => {
       createdAt: -1,
     })
     .lean()
-  return lastUser?.id ? lastUser.id.substring(4) : undefined
+  return lastUser?.id ? lastUser.id : undefined
 }
 
 export const generatedMemberId = async (): Promise<string> => {
