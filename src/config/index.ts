@@ -8,6 +8,8 @@ export default {
   database_url: process.env.DATABASE_URL,
   default_student_password: process.env.DEFAULT_STUDENT_PASSWORD,
   bcrypt_salt_rounds: process.env.BCRYPT_SALT_ROUNDS,
+  search_url: process.env.SEARCH_URL,
+
   jwt: {
     secret: process.env.JWT_SECRET_KEY,
     refresh: process.env.JWT_REFRESH_KEY,

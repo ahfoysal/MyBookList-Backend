@@ -1,13 +1,14 @@
 import { Request, Response } from 'express'
 import httpstatus from 'http-status'
+import { JwtPayload } from 'jsonwebtoken'
 import catchAsync from '../../../shared/catchAsync'
 import pick from '../../../shared/pick'
 import sendResponse from '../../../shared/sendResponse'
 import { paginationFields } from '../../constants/pagination'
+import { rokomari } from '../../scrapper/rokomari'
 import { bookFilterableFields } from './books.constant'
 import { IBook } from './books.interface'
 import { BookService } from './books.service'
-import { JwtPayload } from 'jsonwebtoken'
 
 const createBook = catchAsync(async (req: Request, res: Response) => {
   const { ...data } = req.body
@@ -32,6 +33,17 @@ const getBooks = catchAsync(async (req: Request, res: Response) => {
     message: 'Book fetched successfully',
     meta: result.meta,
     data: result.data,
+  })
+})
+const searchBook = catchAsync(async (req: Request, res: Response) => {
+  const { term } = req.query
+  const books = await rokomari.SearchBooks(term as string)
+  sendResponse(res, {
+    statusCode: httpstatus.OK,
+    success: true,
+    message: 'Book fetched successfully',
+    // meta: result.meta,
+    data: books,
   })
 })
 const getSingleBook = catchAsync(async (req: Request, res: Response) => {
@@ -73,6 +85,7 @@ const deleteBook = catchAsync(async (req: Request, res: Response) => {
 export const BookController = {
   createBook,
   getBooks,
+  searchBook,
   getSingleBook,
   updateBook,
   deleteBook,

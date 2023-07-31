@@ -13,11 +13,8 @@ router.post(
   auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.MEMBER),
   BookController.createBook,
 )
-router.get(
-  '/',
-  // auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
-  BookController.getBooks,
-)
+router.get('/', BookController.getBooks)
+router.get('/search', BookController.searchBook)
 router.get(
   '/:id',
   // auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
