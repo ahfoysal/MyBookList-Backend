@@ -47,6 +47,7 @@ const refreshToken: RequestHandler = catchAsync(
 )
 const me: RequestHandler = catchAsync(async (req: Request, res: Response) => {
   const token = req.user
+
   const result = await AuthService.me(token as JwtPayload)
 
   sendResponse(res, {

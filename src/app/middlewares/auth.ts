@@ -11,6 +11,7 @@ const auth =
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const token = req.headers.authorization
+      console.log(req.headers.authorization)
       if (!token) {
         throw new ApiError(httpStatus.UNAUTHORIZED, 'Unauthorized Request')
       }

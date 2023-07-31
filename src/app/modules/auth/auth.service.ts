@@ -62,8 +62,10 @@ const refreshToken = async (token: string) => {
 }
 
 const me = async (user: JwtPayload) => {
-  console.log(user)
-  return { user }
+  console.log(user.id)
+  const userData = await User.findOne({ id: user.id})
+  
+  return { user: userData }
 }
 
 export const AuthService = {
