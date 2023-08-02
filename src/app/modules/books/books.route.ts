@@ -15,6 +15,7 @@ router.post(
 )
 router.get('/', BookController.getBooks)
 router.get('/search', BookController.searchBook)
+router.get('/detail/:id/:name', BookController.getDetails)
 router.get(
   '/:id',
   // auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),

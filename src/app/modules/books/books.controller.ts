@@ -1,6 +1,9 @@
+import axios from 'axios'
 import { Request, Response } from 'express'
 import httpstatus from 'http-status'
 import { JwtPayload } from 'jsonwebtoken'
+import ApiError from '../../../errors/ApiError'
+import { bookHelper } from '../../../helpers/bookData'
 import catchAsync from '../../../shared/catchAsync'
 import pick from '../../../shared/pick'
 import sendResponse from '../../../shared/sendResponse'
@@ -46,6 +49,31 @@ const searchBook = catchAsync(async (req: Request, res: Response) => {
     data: books,
   })
 })
+const getDetails = catchAsync(async (req: Request, res: Response) => {
+  const { id, name } = req.params
+
+  try {
+    const { data } = await axios.get(
+      `https://www.rokomari.com/data/elastic-autocomplete/?search_type=BOOK&term=${name}`,
+    )
+    const book = await bookHelper.extractData(data, id)
+    if (book) {
+      // console.log(JSON.stringify(matchedObject))
+      sendResponse(res, {
+        statusCode: httpstatus.OK,
+        success: true,
+        message: 'Book fetched successfully',
+        // meta: result.meta,
+        data: book,
+      })
+    } else {
+      throw new ApiError(httpstatus.NOT_FOUND, `Book with ID ${id} not found`)
+    }
+  } catch (error) {
+    console.log(error)
+    throw new ApiError(httpstatus.BAD_REQUEST, 'Failed to get book details')
+  }
+})
 const getSingleBook = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params
   const result = await BookService.getSingleBook(id)
@@ -85,6 +113,7 @@ const deleteBook = catchAsync(async (req: Request, res: Response) => {
 export const BookController = {
   createBook,
   getBooks,
+  getDetails,
   searchBook,
   getSingleBook,
   updateBook,

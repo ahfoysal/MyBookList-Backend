@@ -4,6 +4,7 @@ export type IBook = {
   id: string
   reference?: string
   title: string
+  titleEnglish?: string
   description?: string
   image: string
   reviews?: []
